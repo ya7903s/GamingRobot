@@ -1,5 +1,7 @@
 import pygame
 import random
+
+from utils.assets import load_image
 from .base_game import BaseGridGame # Imports our new base class
 
 # TicTacToeGame NOW INHERITS from BaseGridGame
@@ -13,12 +15,12 @@ class TicTacToeGame(BaseGridGame):
         # --- 2. Tic Tac Toe specific settings ---
         pygame.display.set_caption("Tic Tac Toe (Modular Grid)")
         
-        # Load the icon (path is relative to main.py)
+        # Load the icon (path is relative to the assets directory)
         try:
-            icon = pygame.image.load("assets/icon_tictactoe.png")
+            icon = load_image("icon_tictactoe.png")
             pygame.display.set_icon(icon)
         except Exception as e:
-            print(f"Icon 'assets/icon_tictactoe.png' not found: {e}")
+            print(f"Icon 'icon_tictactoe.png' not found: {e}")
 
         # Specific colors for X and O
         self.PLAYER_X_COLOR = (70, 70, 70)   # Dark Gray for X
@@ -32,6 +34,7 @@ class TicTacToeGame(BaseGridGame):
         self.CURRENT_PLAYER = "X"
         self.GAME_OVER = False
         self.WINNER = None
+        self.STATUS_MESSAGE = "Your turn"
 
     def _draw_piece(self, piece, r, c):
         """ Helper function: Draws an X or O in the cell (r, c) """
@@ -58,17 +61,8 @@ class TicTacToeGame(BaseGridGame):
                 if self.BOARD[r][c]:
                     self._draw_piece(self.BOARD[r][c], r, c)
 
-        # Draw the status message (e.g., "X wins!")
-        message = ""
-        if self.GAME_OVER:
-            if self.WINNER:
-                message = f"{self.WINNER} wins!"
-            elif not any(None in row for row in self.BOARD):
-                message = "It's a draw!"
-        
-        if message:
-            # --- KORRIGIERTE ZEILE ---
-            self.draw_status_message(message) # Calls the function from the base class
+        # Draw the status message (turn info, win/draw, etc.)
+        self.draw_status_message(self.STATUS_MESSAGE) # Calls the function from the base class
 
     def handle_player_move(self, algebraic_coord, row, col):
         """ 
@@ -83,14 +77,12 @@ class TicTacToeGame(BaseGridGame):
             print(f"[PLAYER] Moving to: {algebraic_coord} (Grid: {row}, {col})")
             
             self.BOARD[row][col] = "X"
-            if self.check_winner("X"):
-                self.GAME_OVER = True
-                self.WINNER = "X"
-            elif not any(None in row for row in self.BOARD):
-                self.GAME_OVER = True
-            else:
+            if not self._finalize_turn("X"):
                 self.CURRENT_PLAYER = "O"
+                self.STATUS_MESSAGE = "Robot's turn..."
                 self.ai_move() # AI's turn immediately
+        else:
+            self.STATUS_MESSAGE = "Cell occupied! Choose another field."
 
     # --- 5. Tic Tac Toe specific helper functions ---
 
@@ -107,13 +99,22 @@ class TicTacToeGame(BaseGridGame):
             print(f"[ROBOT] Moving to: {algebraic_coord} (Grid: {r}, {c})")
 
             self.BOARD[r][c] = "O"
-            if self.check_winner("O"):
-                self.GAME_OVER = True
-                self.WINNER = "O"
-            elif not any(None in row for row in self.BOARD):
-                self.GAME_OVER = True
-            else:
+            if not self._finalize_turn("O"):
                 self.CURRENT_PLAYER = "X"
+                self.STATUS_MESSAGE = "Your turn"
+
+    def _finalize_turn(self, player: str) -> bool:
+        """Returns True if the game ended after the move."""
+        if self.check_winner(player):
+            self.GAME_OVER = True
+            self.WINNER = player
+            self.STATUS_MESSAGE = f"{player} wins!"
+            return True
+        if not any(None in row for row in self.BOARD):
+            self.GAME_OVER = True
+            self.STATUS_MESSAGE = "It's a draw!"
+            return True
+        return False
 
     def check_winner(self, player):
         for row in self.BOARD:

@@ -1,5 +1,7 @@
 import pygame
 import random
+
+from utils.assets import load_image
 from .base_game import BaseGridGame # Imports our base class
 
 # ConnectFourGame INHERITS from BaseGridGame
@@ -15,10 +17,10 @@ class ConnectFourGame(BaseGridGame):
         
         # (Optional: Load an icon if you have one)
         try:
-            icon = pygame.image.load("assets/icon_connectfour.png")
+            icon = load_image("icon_connectfour.png")
             pygame.display.set_icon(icon)
         except Exception as e:
-            print(f"Icon 'assets/icon_connectfour.png' not found: {e}")
+            print(f"Icon 'icon_connectfour.png' not found: {e}")
 
         # Player Definitions
         self.PLAYER_1 = 'P1' # Human

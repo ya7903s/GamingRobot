@@ -1,5 +1,7 @@
 import pygame
 import random
+
+from utils.assets import load_image
 from .base_game import BaseGridGame # Importiert unsere Basis-Klasse
 
 # OthelloGame ERBT von BaseGridGame
@@ -15,7 +17,7 @@ class OthelloGame(BaseGridGame):
         
         # (Optional: Lade ein Icon, wenn du eines hast)
         try:
-            icon = pygame.image.load("assets/icon_othello.png")
+            icon = load_image("icon_othello.png")
             pygame.display.set_icon(icon)
         except Exception as e:
             print(f"Icon not found: {e}")

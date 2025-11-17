@@ -121,7 +121,7 @@ class BaseGridGame:
                     running = False # Only quits this game, returns to the launcher
                 
                 if e.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = pygame.mouse.get_pos()
+                    x, y = e.pos
                     row, col = self._pixel_to_coord(x, y)
                     
                     if row is not None:
